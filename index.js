@@ -7,25 +7,28 @@ async function fetchMovie(movieName) {
 
     const movieResponse = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(movieName)}`);
     const movieData = await movieResponse.json();
+    console.log(movieData);
 
     if (movieData.Response === "True") {
-      const movie = movieData.Search[0];
+      movieData.Search.forEach(movie => {
+        const movieCard = document.createElement('div');
+        movieCard.classList.add('movie-card');
 
-      document.getElementById('movieContainer').innerHTML = `
-        <div class="movie-card">
+        movieCard.innerHTML = `
           <img src="${movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/400x600?text=No+Image'}" alt="Poster">
           <h2>${movie.Title} (${movie.Year})</h2>
-          <button id="watchTrailerBtn" style="padding: 10px 20px; margin-top: 20px; font-size: 18px; background: #ff4d4d; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s;">
+          <button style="padding: 10px 20px; margin-top: 10px; font-size: 16px; background: #ff4d4d; color: white; border: none; border-radius: 5px; cursor: pointer;">
             🎬 Voir la bande-annonce
           </button>
-        </div>
-      `;
+        `;
 
-      document.getElementById('watchTrailerBtn').addEventListener('click', () => {
-        const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(movie.Title + ' trailer')}`;
-        window.open(youtubeSearchUrl, '_blank');
+        movieCard.querySelector('button').addEventListener('click', () => {
+          const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(movie.Title + ' trailer')}`;
+          window.open(youtubeSearchUrl, '_blank');
+        });
+
+        document.getElementById('movieContainer').appendChild(movieCard);
       });
-
     } else {
       document.getElementById('movieContainer').innerHTML = "<p>Film non trouvé.</p>";
     }
